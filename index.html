@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1014">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Denver">
+<title>Denver · Nov 20–22</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e1014; --panel:#171a21; --panel2:#1e222b; --line:#2a2f3a;
+    --text:#eef0f4; --mute:#9aa1ad; --dim:#6b7280;
+    --accent:#e8483b; --gold:#f5c04a; --blue:#3b82f6; --green:#34d399;
+    --food:#f97316; --bar:#a855f7; --coffee:#c08457; --venue:#e8483b;
+    --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:15px;line-height:1.4}
+  a{color:inherit}
+  header{position:sticky;top:0;z-index:20;background:rgba(14,16,20,.92);backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);padding:calc(var(--safe-t) + 14px) 18px 12px;border-bottom:1px solid var(--line)}
+  .kicker{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  h1{margin:2px 0 0;font-size:22px;font-weight:800;letter-spacing:-.02em}
+  .status{margin-top:8px;font-size:13px;color:var(--mute);display:flex;gap:8px;align-items:center}
+  .status b{color:var(--text);font-weight:600}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex:none;box-shadow:0 0 0 4px rgba(52,211,153,.15)}
+
+  main{padding:14px 14px calc(84px + var(--safe-b))}
+  .view{display:none}.view.on{display:block}
+  #view-map.on{display:block;position:fixed;inset:0;padding:0;z-index:5}
+  #map{position:absolute;top:0;left:0;right:0;bottom:calc(58px + var(--safe-b));background:#1a1d24}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+  .card h3{margin:0 0 10px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);font-weight:700}
+  .crew{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .person{background:var(--panel2);border-radius:12px;padding:10px}
+  .person .n{font-weight:700}
+  .person .s{font-size:12px;color:var(--mute);margin-top:2px}
+
+  .show{background:linear-gradient(135deg,#2a0f0d,#171a21 60%);border-color:#4a1d19}
+  .show .big{font-size:20px;font-weight:800;letter-spacing:-.01em}
+  .show .sub{color:var(--mute);font-size:13px;margin-top:2px}
+  .lineup{margin:10px 0;display:flex;flex-wrap:wrap;gap:6px}
+  .lineup span{font-size:12px;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+  .lineup span.head{background:var(--accent);border-color:var(--accent);font-weight:700}
+  .times{display:flex;gap:10px;margin-top:6px}
+  .times div{flex:1;background:rgba(0,0,0,.25);border-radius:10px;padding:8px 10px}
+  .times small{display:block;color:var(--mute);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+  .times b{font-size:16px}
+  .note{font-size:12px;color:var(--dim);margin-top:8px}
+
+  .day{margin:18px 2px 8px;display:flex;align-items:baseline;gap:8px}
+  .day h2{margin:0;font-size:18px;font-weight:800}
+  .day span{color:var(--mute);font-size:13px}
+  .tl{position:relative;margin-left:6px;padding-left:18px;border-left:2px solid var(--line)}
+  .item{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:11px 12px;margin-bottom:8px}
+  .item::before{content:"";position:absolute;left:-26px;top:16px;width:12px;height:12px;border-radius:50%;
+    background:var(--bg);border:2px solid var(--dim)}
+  .item.past{opacity:.45}
+  .item.next{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+  .item.next::before{border-color:var(--accent);background:var(--accent)}
+  .item.tbd{border-style:dashed;background:transparent}
+  .item .t{font-size:12px;color:var(--mute);font-weight:600;display:flex;gap:6px;align-items:center}
+  .item .ttl{font-weight:650;margin-top:2px}
+  .item .d{font-size:13px;color:var(--mute);margin-top:3px}
+  .tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:2px 6px;border-radius:6px;background:var(--panel2);color:var(--mute)}
+  .tag.flight{color:#93c5fd}.tag.show{color:#fca5a5}.tag.food{color:#fdba74}.tag.open{color:var(--dim)}
+  .links{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;padding:7px 11px;border-radius:10px;
+    background:var(--panel2);border:1px solid var(--line);color:var(--text);text-decoration:none;cursor:pointer;font-family:inherit}
+  .btn.primary{background:var(--accent);border-color:var(--accent)}
+
+  .chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+  .chip{flex:none;font-size:13px;font-weight:600;padding:7px 12px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--mute);cursor:pointer;font-family:inherit}
+  .chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+  .place{display:flex;gap:12px}
+  .pin{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:18px;flex:none;background:var(--panel2)}
+  .place .n{font-weight:700;display:flex;gap:6px;align-items:center}
+  .place .star{color:var(--gold)}
+  .place .m{font-size:12px;color:var(--mute)}
+  .empty{text-align:center;color:var(--mute);padding:28px 16px}
+  .empty b{display:block;color:var(--text);font-size:16px;margin-bottom:4px}
+
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(14,16,20,.95);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding-bottom:var(--safe-b)}
+  nav a{flex:1;text-align:center;padding:10px 0 9px;text-decoration:none;color:var(--dim);font-size:11px;font-weight:600}
+  nav a .i{display:block;font-size:20px;line-height:1.2}
+  nav a.on{color:var(--text)}
+
+  /* map overlays */
+  .mapbar{position:absolute;z-index:500;left:12px;right:12px;top:calc(var(--safe-t) + 12px);display:flex;gap:8px;flex-wrap:wrap}
+  .fab{background:rgba(23,26,33,.95);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:9px 12px;
+    font-weight:600;font-size:13px;font-family:inherit;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+  .fab.on{background:var(--blue);border-color:var(--blue)}
+  .locinfo{position:absolute;z-index:500;left:12px;right:12px;bottom:calc(72px + var(--safe-b));background:rgba(23,26,33,.96);
+    border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:13px;display:none;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+  .locinfo.on{display:block}
+  .locinfo b{font-size:15px}
+  .leaflet-container{font-family:inherit}
+  .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--panel);color:var(--text);border:1px solid var(--line)}
+  .leaflet-popup-content{margin:12px 14px;font-size:13px}
+  .leaflet-popup-content .pn{font-weight:700;font-size:15px}
+  .leaflet-popup-content .pm{color:var(--mute);margin:2px 0 8px}
+  .leaflet-container a.leaflet-popup-close-button{color:var(--mute)}
+  .leaflet-control-attribution{background:rgba(14,16,20,.7)!important;color:var(--dim)!important;font-size:10px}
+  .leaflet-control-attribution a{color:var(--mute)!important}
+  .mk{display:grid;place-items:center;border-radius:50%;border:2px solid #fff;font-size:15px;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+  .mk.home{border-radius:12px;background:var(--text);font-size:18px}
+  .mk.starred{box-shadow:0 0 0 3px var(--gold),0 2px 8px rgba(0,0,0,.5)}
+  .me{width:18px;height:18px;border-radius:50%;background:var(--blue);border:3px solid #fff;box-shadow:0 0 0 0 rgba(59,130,246,.6);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(59,130,246,.6)}70%{box-shadow:0 0 0 16px rgba(59,130,246,0)}100%{box-shadow:0 0 0 0 rgba(59,130,246,0)}}
+</style>
+</head>
+<body>
+
+<header id="hdr">
+  <div class="kicker">Denver · Nov 20–22</div>
+  <h1>Underoath Weekend</h1>
+  <div class="status" id="status"></div>
+</header>
+
+<main>
+  <section class="view" id="view-plan"></section>
+  <section class="view" id="view-places"></section>
+</main>
+
+<section class="view" id="view-map">
+  <div id="map"></div>
+  <div class="mapbar">
+    <button class="fab" id="btn-locate">📍 Where am I</button>
+    <button class="fab" id="btn-home">🏠 Hotel</button>
+    <button class="fab" id="btn-all">⤢ Fit all</button>
+  </div>
+  <div class="locinfo" id="locinfo"></div>
+</section>
+
+<nav>
+  <a href="#plan" data-v="plan"><span class="i">🗓️</span>Plan</a>
+  <a href="#map" data-v="map"><span class="i">🗺️</span>Map</a>
+  <a href="#places" data-v="places"><span class="i">⭐</span>Places</a>
+</nav>
+
+<script>
+/* =====================================================================
+   TRIP DATA — edit this block to update the app.
+   All times are Mountain Time (Denver). Nov 2026 = MST, UTC-7.
+   ===================================================================== */
+const TZ = "America/Denver";
+const OFFSET = "-07:00";
+
+const HOME = {
+  id: "hotel", name: "Hyatt Regency Denver", cat: "hotel",
+  addr: "650 15th St, Denver, CO 80202",
+  lat: 39.7444, lng: -104.9942,
+  note: "Home base. Rooms: Justin + Eron · Mike + Nathan"
+};
+
+const CREW = [
+  { name: "Justin", sub: "UA 5520 · lands 12:05 PM · rm w/ Eron" },
+  { name: "Eron",   sub: "UA 5520 · lands 12:05 PM · rm w/ Justin" },
+  { name: "Nathan", sub: "Lands ~9:00 AM · rm w/ Mike" },
+  { name: "Mike",   sub: "Lands ~9:45 AM · rm w/ Nathan" },
+  { name: "Joey",   sub: "Local · free after 4 PM Fri" },
+];
+
+/* cat: hotel | venue | food | bar | coffee | sight
+   star: true shows a gold ring on the map and in the ★ filter */
+const PLACES = [
+  { id: "fillmore", name: "Fillmore Auditorium", cat: "venue", star: true,
+    addr: "1510 Clarkson St, Denver, CO 80218", lat: 39.7400, lng: -104.9774,
+    note: "Underoath · Sat Nov 21", url: "https://www.fillmoreauditorium.org/" },
+  // Food, bars and coffee go here, e.g.
+  // { id:"x", name:"Name", cat:"food", star:true, addr:"…", lat:39.75, lng:-104.99, note:"why it's on the list", url:"https://…" },
+];
+
+const AIRPORT = { name: "Denver Intl (DEN)", lat: 39.8561, lng: -104.6737 };
+
+const DAYS = [
+  { date: "2026-11-20", label: "Friday", sub: "Nov 20 · arrival", items: [
+    { t: "09:00", title: "Nathan lands at DEN", tag: "flight", who: "Nathan" },
+    { t: "09:40", disp: "8:40 AM PT · 9:40 MT", title: "Justin + Eron depart Carlsbad (CLD)", tag: "flight",
+      d: "UA 5520 · SkyWest E175 · seat 20A", flight: "UAL5520" },
+    { t: "09:45", title: "Mike lands at DEN", tag: "flight", who: "Mike" },
+    { t: "12:05", title: "Justin + Eron land at DEN", tag: "flight", d: "UA 5520 · Uber downtown, about 40 min", flight: "UAL5520" },
+    { t: "13:30", approx: true, title: "Drop bags at the Hyatt", place: "hotel" },
+    { t: "14:00", title: "Afternoon: explore downtown", tag: "open", tbd: true, d: "Food, coffee and bars to come" },
+    { t: "16:00", title: "Joey is free", d: "Meet up after 4" },
+    { t: "18:30", approx: true, title: "Dinner with Joey", tag: "food", tbd: true, d: "Spot TBD" },
+  ]},
+  { date: "2026-11-21", label: "Saturday", sub: "Nov 21 · show day", items: [
+    { t: "10:00", approx: true, title: "Breakfast and coffee", tag: "food", tbd: true, d: "Spot TBD" },
+    { t: "11:30", title: "Explore the city", tag: "open", tbd: true, d: "Plans to come" },
+    { t: "16:00", approx: true, title: "Pre-show dinner and drinks", tag: "food", tbd: true, d: "Ideally near the Fillmore on Colfax" },
+    { t: "17:30", title: "Doors · Fillmore Auditorium", tag: "show", place: "fillmore", d: "Listings say 5:30. Check your tickets." },
+    { t: "18:30", title: "Underoath · Define The Great Line 20th Anniversary", tag: "show", place: "fillmore",
+      d: "w/ August Burns Red, Atreyu, As Cities Burn" },
+  ]},
+  { date: "2026-11-22", label: "Sunday", sub: "Nov 22 · fly home", items: [
+    { t: "08:00", approx: true, title: "Breakfast and check out", tag: "food", tbd: true },
+    { t: "09:15", approx: true, title: "Uber to DEN", d: "About 40 min, more on a busy morning" },
+    { t: "11:30", title: "Justin + Eron depart DEN to CLD", tag: "flight",
+      d: "UA 5507 · SkyWest E175 · seat 20A · lands 12:54 PM PT", flight: "UAL5507" },
+  ]},
+];
+
+/* ===================================================================== */
+
+const CAT = {
+  hotel:  { e: "🏠", c: "#eef0f4", label: "Hotel" },
+  venue:  { e: "🎸", c: "#e8483b", label: "Venue" },
+  food:   { e: "🍽️", c: "#f97316", label: "Food" },
+  bar:    { e: "🍺", c: "#a855f7", label: "Bars" },
+  coffee: { e: "☕", c: "#c08457", label: "Coffee" },
+  sight:  { e: "📸", c: "#14b8a6", label: "Sights" },
+};
+const ALL = [HOME, ...PLACES];
+const byId = id => ALL.find(p => p.id === id);
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+function at(date, t) { return new Date(`${date}T${t}:00${OFFSET}`); }
+function fmtTime(t) {
+  let [h, m] = t.split(":").map(Number); const ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
+  return `${h}:${String(m).padStart(2, "0")} ${ap}`;
+}
+function miles(a, b) {
+  const R = 3958.8, r = x => x * Math.PI / 180;
+  const dLat = r(b.lat - a.lat), dLng = r(b.lng - a.lng);
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+// City-grid walking is roughly 1.3× the straight line; ~20 min per mile.
+function walk(a, b) {
+  const mi = miles(a, b) * 1.3;
+  const min = Math.round(mi * 20);
+  return { mi, txt: mi < 0.1 ? "right here" : `${mi.toFixed(1)} mi · ${min < 60 ? min + " min" : (min / 60).toFixed(1) + " hr"} walk` };
+}
+function dirUrl(p) {
+  return isIOS ? `https://maps.apple.com/?daddr=${p.lat},${p.lng}&dirflg=w`
+               : `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=walking`;
+}
+function uberUrl(p) {
+  return `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]=${p.lat}&dropoff[longitude]=${p.lng}&dropoff[nickname]=${encodeURIComponent(p.name)}&dropoff[formatted_address]=${encodeURIComponent(p.addr || "")}`;
+}
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ---------- status line ---------- */
+// key is stable per slot, so the "next" item is matched by identity
+// rather than by title+time colliding.
+function flatItems() {
+  return DAYS.flatMap(d => d.items.map((i, n) => ({ ...i, when: at(d.date, i.t), day: d, key: d.date + "#" + n })));
+}
+function renderStatus() {
+  const now = new Date(), items = flatItems();
+  const start = items[0].when, end = items[items.length - 1].when;
+  const el = document.getElementById("status");
+  if (now < start) {
+    const days = Math.ceil((start - now) / 864e5);
+    el.innerHTML = `<span class="dot" style="background:var(--gold);box-shadow:0 0 0 4px rgba(245,192,74,.15)"></span><span><b>${days} day${days === 1 ? "" : "s"}</b> to go · Fillmore, Sat Nov 21</span>`;
+  } else if (now > end) {
+    el.innerHTML = `<span>Trip's over. Good weekend.</span>`;
+  } else {
+    const next = items.find(i => i.when > now);
+    el.innerHTML = next
+      ? `<span class="dot"></span><span>Next: <b>${esc(next.title)}</b> · ${next.disp || fmtTime(next.t)}</span>`
+      : `<span class="dot"></span><span>Last day</span>`;
+  }
+}
+
+/* ---------- plan view ---------- */
+function renderPlan() {
+  const now = new Date(), items = flatItems();
+  const nextItem = items.find(i => i.when > now && now > items[0].when - 864e5);
+  const fill = byId("fillmore"), w = walk(HOME, fill);
+  let h = `
+  <div class="card show">
+    <div class="kicker">Saturday · Nov 21</div>
+    <div class="big">Underoath</div>
+    <div class="sub">Define The Great Line 20th Anniversary Tour</div>
+    <div class="lineup"><span class="head">Underoath</span><span>August Burns Red</span><span>Atreyu</span><span>As Cities Burn</span></div>
+    <div class="times"><div><small>Doors</small><b>5:30 PM</b></div><div><small>Show</small><b>6:30 PM</b></div></div>
+    <div class="sub" style="margin-top:10px">📍 Fillmore Auditorium · 1510 Clarkson St<br>${w.txt} from the hotel</div>
+    <div class="links">
+      <a class="btn primary" href="${dirUrl(fill)}" target="_blank" rel="noopener">Directions</a>
+      <a class="btn" href="${uberUrl(fill)}" target="_blank" rel="noopener">Uber</a>
+      <a class="btn" href="#map" data-focus="fillmore">On map</a>
+    </div>
+    <div class="note">Listings disagree on the time (5:30 vs 6:30). Check the tickets.</div>
+  </div>
+  <div class="card">
+    <h3>Crew</h3>
+    <div class="crew">${CREW.map(c => `<div class="person"><div class="n">${esc(c.name)}</div><div class="s">${esc(c.sub)}</div></div>`).join("")}</div>
+    <div class="note">🏠 ${esc(HOME.name)} · ${esc(HOME.addr)}</div>
+  </div>`;
+  for (const d of DAYS) {
+    h += `<div class="day"><h2>${d.label}</h2><span>${d.sub}</span></div><div class="tl">`;
+    for (const [n, i] of d.items.entries()) {
+      const when = at(d.date, i.t), key = d.date + "#" + n;
+      const isNext = !!nextItem && nextItem.key === key;
+      const cls = ["item", i.tbd ? "tbd" : "", when < now && !isNext ? "past" : "",
+        isNext ? "next" : ""].join(" ");
+      const time = (i.disp || fmtTime(i.t)) + (i.approx ? " (approx.)" : "");
+      const p = i.place && byId(i.place);
+      let links = "";
+      if (p) links += `<a class="btn" href="${dirUrl(p)}" target="_blank" rel="noopener">Directions</a><a class="btn" href="#map" data-focus="${p.id}">On map</a>`;
+      if (i.flight) links += `<a class="btn" href="https://www.flightaware.com/live/flight/${i.flight}" target="_blank" rel="noopener">✈️ Flight status</a>`;
+      h += `<div class="${cls}">
+        <div class="t">${time}${i.tag ? `<span class="tag ${i.tag}">${i.tag === "open" ? "open" : i.tag}</span>` : ""}</div>
+        <div class="ttl">${esc(i.title)}</div>
+        ${i.d ? `<div class="d">${esc(i.d)}</div>` : ""}
+        ${links ? `<div class="links">${links}</div>` : ""}
+      </div>`;
+    }
+    h += `</div>`;
+  }
+  document.getElementById("view-plan").innerHTML = h;
+}
+
+/* ---------- places view ---------- */
+let filter = "all";
+let me = null;
+function renderPlaces() {
+  const cats = ["all", "star", ...Object.keys(CAT).filter(k => k !== "hotel" && PLACES.some(p => p.cat === k)), "food", "bar", "coffee"]
+    .filter((v, i, a) => a.indexOf(v) === i);
+  const origin = me || HOME;
+  let list = PLACES.filter(p => filter === "all" || (filter === "star" ? p.star : p.cat === filter))
+    .map(p => ({ ...p, w: walk(origin, p) })).sort((a, b) => a.w.mi - b.w.mi);
+  let h = `<div class="chips">${cats.map(c => `<button class="chip ${filter === c ? "on" : ""}" data-f="${c}">${
+    c === "all" ? "All" : c === "star" ? "★ Starred" : CAT[c].e + " " + CAT[c].label}</button>`).join("")}</div>
+    <div class="note" style="margin:-4px 2px 10px">Distances from ${me ? "<b style='color:var(--blue)'>you</b>" : "the hotel"}${me ? "" : ". Tap 📍 on the map to measure from where you are."}</div>`;
+  if (!list.length) {
+    h += `<div class="card empty"><b>Nothing here yet</b>Food, bars and coffee spots are next. They'll show up here and on the map.</div>`;
+  }
+  for (const p of list) {
+    const c = CAT[p.cat];
+    h += `<div class="card"><div class="place">
+      <div class="pin" style="background:${c.c}22">${c.e}</div>
+      <div style="flex:1;min-width:0">
+        <div class="n">${esc(p.name)}${p.star ? `<span class="star">★</span>` : ""}</div>
+        <div class="m">${esc(p.note || "")}</div>
+        <div class="m">${p.w.txt}</div>
+        <div class="links">
+          <a class="btn primary" href="${dirUrl(p)}" target="_blank" rel="noopener">Directions</a>
+          <a class="btn" href="${uberUrl(p)}" target="_blank" rel="noopener">Uber</a>
+          <a class="btn" href="#map" data-focus="${p.id}">On map</a>
+          ${p.url ? `<a class="btn" href="${p.url}" target="_blank" rel="noopener">Site</a>` : ""}
+        </div>
+      </div></div></div>`;
+  }
+  document.getElementById("view-places").innerHTML = h;
+}
+document.addEventListener("click", e => {
+  const f = e.target.closest("[data-f]");
+  if (f) { filter = f.dataset.f; renderPlaces(); }
+  const fo = e.target.closest("[data-focus]");
+  if (fo) { pendingFocus = fo.dataset.focus; }
+});
+
+/* ---------- map ---------- */
+let map, markers = {}, meMarker, meCircle, watchId = null, pendingFocus = null, firstFix = true;
+function icon(p) {
+  const c = CAT[p.cat], home = p.cat === "hotel", s = home ? 38 : 32;
+  return L.divIcon({ className: "", iconSize: [s, s], iconAnchor: [s / 2, s / 2], popupAnchor: [0, -s / 2],
+    html: `<div class="mk ${home ? "home" : ""} ${p.star ? "starred" : ""}" style="width:${s}px;height:${s}px;${home ? "" : `background:${c.c}`}">${c.e}</div>` });
+}
+function popup(p) {
+  const w = p.id === "hotel" ? null : walk(HOME, p);
+  return `<div class="pn">${esc(p.name)}${p.star ? " <span style='color:var(--gold)'>★</span>" : ""}</div>
+    <div class="pm">${esc(p.note || p.addr || "")}${w ? `<br>${w.txt} from hotel` : ""}</div>
+    <div class="links" style="margin-top:0">
+      <a class="btn primary" href="${dirUrl(p)}" target="_blank" rel="noopener">Directions</a>
+      <a class="btn" href="${uberUrl(p)}" target="_blank" rel="noopener">Uber</a></div>`;
+}
+function initMap() {
+  if (map || !window.L) return;
+  map = L.map("map", { zoomControl: false, attributionControl: true }).setView([HOME.lat, HOME.lng], 14);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    maxZoom: 19, subdomains: "abcd",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  }).addTo(map);
+  for (const p of ALL) {
+    markers[p.id] = L.marker([p.lat, p.lng], { icon: icon(p), zIndexOffset: p.id === "hotel" ? 1000 : 0 })
+      .addTo(map).bindPopup(popup(p));
+  }
+  fitAll();
+}
+function fitAll() {
+  const pts = ALL.map(p => [p.lat, p.lng]);
+  if (me) pts.push([me.lat, me.lng]);
+  map.fitBounds(L.latLngBounds(pts).pad(0.25), { maxZoom: 15 });
+}
+function focus(id) {
+  const p = byId(id); if (!p || !map) return;
+  map.setView([p.lat, p.lng], 16); markers[id].openPopup();
+}
+document.getElementById("btn-home").onclick = () => focus("hotel");
+document.getElementById("btn-all").onclick = () => fitAll();
+document.getElementById("btn-locate").onclick = () => {
+  if (watchId !== null) {               // already tracking: just recenter
+    if (me) map.setView([me.lat, me.lng], 16);
+    return;
+  }
+  const info = document.getElementById("locinfo");
+  if (!("geolocation" in navigator)) { showInfo("This browser can't share location."); return; }
+  if (!window.isSecureContext) { showInfo("Location needs an https:// link. Open the hosted page, not a local file."); return; }
+  showInfo("Finding you…");
+  watchId = navigator.geolocation.watchPosition(pos => {
+    me = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy };
+    const ll = [me.lat, me.lng];
+    if (!meMarker) {
+      meMarker = L.marker(ll, { icon: L.divIcon({ className: "", html: '<div class="me"></div>', iconSize: [18, 18], iconAnchor: [9, 9] }), zIndexOffset: 2000 }).addTo(map);
+      meCircle = L.circle(ll, { radius: me.acc, color: "#3b82f6", weight: 1, fillOpacity: .1 }).addTo(map);
+    } else { meMarker.setLatLng(ll); meCircle.setLatLng(ll).setRadius(me.acc); }
+    document.getElementById("btn-locate").classList.add("on");
+    const h = walk(me, HOME);
+    const near = PLACES.filter(p => p.star).map(p => ({ p, w: walk(me, p) })).sort((a, b) => a.w.mi - b.w.mi)[0];
+    const far = miles(me, HOME) > 30;
+    showInfo(far
+      ? `<b>You're ${miles(me, HOME).toFixed(0)} mi from Denver</b><br><span style="color:var(--mute)">The map will make more sense once you land.</span>`
+      : `<b>🏠 Hotel: ${h.txt}</b>${near ? `<br><span style="color:var(--mute)">Nearest ★ ${esc(near.p.name)}: ${near.w.txt}</span>` : ""}
+         <div class="links"><a class="btn" href="${dirUrl(HOME)}" target="_blank" rel="noopener">Walk back</a><a class="btn" href="${uberUrl(HOME)}" target="_blank" rel="noopener">Uber back</a></div>`);
+    if (firstFix) {
+      firstFix = false;
+      if (far) map.setView(ll, 11);
+      else map.fitBounds(L.latLngBounds([ll, [HOME.lat, HOME.lng]]).pad(0.4), { maxZoom: 16 });
+    }
+    if (current === "places") renderPlaces();
+  }, err => {
+    watchId !== null && navigator.geolocation.clearWatch(watchId); watchId = null;
+    showInfo(err.code === 1 ? "Location is blocked. Allow it for this site in your browser settings, then tap again."
+                            : "Couldn't get your location. Try again in a moment.");
+  }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 });
+};
+function showInfo(html) { const el = document.getElementById("locinfo"); el.innerHTML = html; el.classList.add("on"); }
+
+/* ---------- routing ---------- */
+let current = "plan";
+function route() {
+  const v = (location.hash || "#plan").slice(1);
+  current = ["plan", "map", "places"].includes(v) ? v : "plan";
+  document.querySelectorAll(".view").forEach(s => s.classList.toggle("on", s.id === "view-" + current));
+  document.querySelectorAll("nav a").forEach(a => a.classList.toggle("on", a.dataset.v === current));
+  document.getElementById("hdr").style.display = current === "map" ? "none" : "";
+  if (current === "map") {
+    initMap();
+    setTimeout(() => { map && map.invalidateSize(); if (pendingFocus) { focus(pendingFocus); pendingFocus = null; } }, 60);
+  }
+  if (current === "places") renderPlaces();
+  window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", route);
+
+renderStatus(); renderPlan(); renderPlaces(); route();
+setInterval(() => { renderStatus(); if (current === "plan") renderPlan(); }, 60000);
+</script>
+</body>
+</html>
