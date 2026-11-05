@@ -14,10 +14,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0f0d0a; --panel:#1b1712; --panel2:#231e17; --line:#352d22;
-    --text:#efe9df; --mute:#a79c8a; --dim:#7a6f5d;
-    --accent:#c2503a; --gold:#d4af5a; --blue:#3b82f6; --green:#34d399;
-    --food:#f97316; --bar:#a855f7; --coffee:#c08457; --venue:#c2503a;
+    --bg:#06150f; --panel:#082418; --panel2:#0b3021; --line:#114d35;
+    --text:#c1e0d6; --mute:#8db0a9; --dim:#33996f;
+    --accent:#6cc295; --gold:#72aaaf; --blue:#3b82f6; --green:#34d399;
+    --food:#f97316; --bar:#a855f7; --coffee:#c08457; --venue:#6cc295;
     --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -36,7 +36,7 @@
   main{padding:14px 14px calc(84px + var(--safe-b))}
   .view{display:none}.view.on{display:block}
   #view-map.on{display:block;position:fixed;inset:0;padding:0;z-index:5}
-  #map{position:absolute;top:0;left:0;right:0;bottom:calc(58px + var(--safe-b));background:#1a1d24}
+  #map{position:absolute;top:0;left:0;right:0;bottom:calc(58px + var(--safe-b));background:#0b3021}
 
   .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
   .card h3{margin:0 0 10px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);font-weight:700}
@@ -45,12 +45,12 @@
   .person .n{font-weight:700}
   .person .s{font-size:12px;color:var(--mute);margin-top:2px}
 
-  .show{background:linear-gradient(135deg,#2c140c,#1b1712 60%);border-color:#4a2a16}
+  .show{background:linear-gradient(135deg,#0d3324,#082418 60%);border-color:#1a5c40}
   .show .big{font-size:21px}
   .show .sub{color:var(--mute);font-size:13px;margin-top:2px}
   .lineup{margin:10px 0;display:flex;flex-wrap:wrap;gap:6px}
   .lineup span{font-size:12px;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
-  .lineup span.head{background:var(--accent);border-color:var(--accent);font-weight:700}
+  .lineup span.head{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:700}
   .times{display:flex;gap:10px;margin-top:6px}
   .times div{flex:1;background:rgba(0,0,0,.25);border-radius:10px;padding:8px 10px}
   .times small{display:block;color:var(--mute);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
@@ -76,7 +76,7 @@
   .links{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
   .btn{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;padding:7px 11px;border-radius:10px;
     background:var(--panel2);border:1px solid var(--line);color:var(--text);text-decoration:none;cursor:pointer;font-family:inherit}
-  .btn.primary{background:var(--accent);border-color:var(--accent)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
 
   .chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
   .chip{flex:none;font-size:13px;font-weight:600;padding:7px 12px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--mute);cursor:pointer;font-family:inherit}
@@ -214,8 +214,8 @@ const DAYS = [
 /* ===================================================================== */
 
 const CAT = {
-  hotel:  { e: "🏠", c: "#efe9df", label: "Hotel" },
-  venue:  { e: "🎸", c: "#c2503a", label: "Venue" },
+  hotel:  { e: "🏠", c: "#c1e0d6", label: "Hotel" },
+  venue:  { e: "🎸", c: "#6cc295", label: "Venue" },
   food:   { e: "🍽️", c: "#f97316", label: "Food" },
   bar:    { e: "🍺", c: "#a855f7", label: "Bars" },
   coffee: { e: "☕", c: "#c08457", label: "Coffee" },
@@ -263,7 +263,7 @@ function renderStatus() {
   const el = document.getElementById("status");
   if (now < start) {
     const days = Math.ceil((start - now) / 864e5);
-    el.innerHTML = `<span class="dot" style="background:var(--gold);box-shadow:0 0 0 4px rgba(212,175,90,.18)"></span><span><b>${days} day${days === 1 ? "" : "s"}</b> to go · Fillmore, Sat Nov 21</span>`;
+    el.innerHTML = `<span class="dot" style="background:var(--gold);box-shadow:0 0 0 4px rgba(114,170,175,.2)"></span><span><b>${days} day${days === 1 ? "" : "s"}</b> to go · Fillmore, Sat Nov 21</span>`;
   } else if (now > end) {
     el.innerHTML = `<span>Trip's over. Good weekend.</span>`;
   } else {
