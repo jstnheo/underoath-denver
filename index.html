@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0e1014; --panel:#171a21; --panel2:#1e222b; --line:#2a2f3a;
@@ -28,6 +28,7 @@
     -webkit-backdrop-filter:blur(10px);padding:calc(var(--safe-t) + 14px) 18px 12px;border-bottom:1px solid var(--line)}
   .kicker{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
   h1{margin:2px 0 0;font-size:22px;font-weight:800;letter-spacing:-.02em}
+  .wordmark{font-family:Cinzel,Inter,serif;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
   .status{margin-top:8px;font-size:13px;color:var(--mute);display:flex;gap:8px;align-items:center}
   .status b{color:var(--text);font-weight:600}
   .dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex:none;box-shadow:0 0 0 4px rgba(52,211,153,.15)}
@@ -45,7 +46,7 @@
   .person .s{font-size:12px;color:var(--mute);margin-top:2px}
 
   .show{background:linear-gradient(135deg,#2a0f0d,#171a21 60%);border-color:#4a1d19}
-  .show .big{font-size:20px;font-weight:800;letter-spacing:-.01em}
+  .show .big{font-size:21px}
   .show .sub{color:var(--mute);font-size:13px;margin-top:2px}
   .lineup{margin:10px 0;display:flex;flex-wrap:wrap;gap:6px}
   .lineup span{font-size:12px;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
@@ -122,7 +123,7 @@
 
 <header id="hdr">
   <div class="kicker">Denver · Nov 20–22</div>
-  <h1>Underoath Weekend</h1>
+  <h1><span class="wordmark">Underoath</span> Weekend</h1>
   <div class="status" id="status"></div>
 </header>
 
@@ -281,7 +282,7 @@ function renderPlan() {
   let h = `
   <div class="card show">
     <div class="kicker">Saturday · Nov 21</div>
-    <div class="big">Underoath</div>
+    <div class="big"><span class="wordmark">Underoath</span></div>
     <div class="sub">Define The Great Line 20th Anniversary Tour</div>
     <div class="lineup"><span class="head">Underoath</span><span>August Burns Red</span><span>Atreyu</span><span>As Cities Burn</span></div>
     <div class="times"><div><small>Doors</small><b>5:30 PM</b></div><div><small>Show</small><b>6:30 PM</b></div></div>
