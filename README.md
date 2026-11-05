@@ -30,6 +30,21 @@ and optionally `disp` (override the displayed time string), `approx`, `tbd`,
 
 All times are Mountain Time. November 2026 is MST, UTC−7, set via `OFFSET`.
 
+### Map tiles need a CARTO API key
+
+CARTO requires a free API key for its basemap tiles as of September 2026 —
+without one the map shows CARTO's own "API KEY REQUIRED" placeholder instead
+of the city. Get one (no account needed, 5M tile loads/month free for
+non-commercial use) at <https://carto.com/basemaps/apikey>, then set
+`CARTO_KEY` right under `OFFSET` near the top of the script:
+
+```js
+const CARTO_KEY = "your-key-here";
+```
+
+Left blank, the app shows a "Map needs a free API key" notice instead of
+CARTO's broken tiles, so it fails visibly rather than silently.
+
 ## Local preview
 
 ```sh
@@ -84,7 +99,7 @@ branch is deliberate, not a bug.
 Loaded from cdnjs at runtime, pinned:
 
 - Leaflet 1.9.4 (CSS + JS)
-- Inter via Google Fonts
-- CARTO dark basemap tiles
+- Inter + Cinzel via Google Fonts
+- CARTO dark basemap tiles — needs a free API key, see above
 
 No build step, no package manager, no `node_modules`.
