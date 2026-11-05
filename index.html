@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0e1014">
+<meta name="theme-color" content="#0f0d0a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Denver">
@@ -14,10 +14,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0e1014; --panel:#171a21; --panel2:#1e222b; --line:#2a2f3a;
-    --text:#eef0f4; --mute:#9aa1ad; --dim:#6b7280;
-    --accent:#e8483b; --gold:#f5c04a; --blue:#3b82f6; --green:#34d399;
-    --food:#f97316; --bar:#a855f7; --coffee:#c08457; --venue:#e8483b;
+    --bg:#0f0d0a; --panel:#1b1712; --panel2:#231e17; --line:#352d22;
+    --text:#efe9df; --mute:#a79c8a; --dim:#7a6f5d;
+    --accent:#c2503a; --gold:#d4af5a; --blue:#3b82f6; --green:#34d399;
+    --food:#f97316; --bar:#a855f7; --coffee:#c08457; --venue:#c2503a;
     --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -45,7 +45,7 @@
   .person .n{font-weight:700}
   .person .s{font-size:12px;color:var(--mute);margin-top:2px}
 
-  .show{background:linear-gradient(135deg,#2a0f0d,#171a21 60%);border-color:#4a1d19}
+  .show{background:linear-gradient(135deg,#2c140c,#1b1712 60%);border-color:#4a2a16}
   .show .big{font-size:21px}
   .show .sub{color:var(--mute);font-size:13px;margin-top:2px}
   .lineup{margin:10px 0;display:flex;flex-wrap:wrap;gap:6px}
@@ -214,8 +214,8 @@ const DAYS = [
 /* ===================================================================== */
 
 const CAT = {
-  hotel:  { e: "🏠", c: "#eef0f4", label: "Hotel" },
-  venue:  { e: "🎸", c: "#e8483b", label: "Venue" },
+  hotel:  { e: "🏠", c: "#efe9df", label: "Hotel" },
+  venue:  { e: "🎸", c: "#c2503a", label: "Venue" },
   food:   { e: "🍽️", c: "#f97316", label: "Food" },
   bar:    { e: "🍺", c: "#a855f7", label: "Bars" },
   coffee: { e: "☕", c: "#c08457", label: "Coffee" },
@@ -263,7 +263,7 @@ function renderStatus() {
   const el = document.getElementById("status");
   if (now < start) {
     const days = Math.ceil((start - now) / 864e5);
-    el.innerHTML = `<span class="dot" style="background:var(--gold);box-shadow:0 0 0 4px rgba(245,192,74,.15)"></span><span><b>${days} day${days === 1 ? "" : "s"}</b> to go · Fillmore, Sat Nov 21</span>`;
+    el.innerHTML = `<span class="dot" style="background:var(--gold);box-shadow:0 0 0 4px rgba(212,175,90,.18)"></span><span><b>${days} day${days === 1 ? "" : "s"}</b> to go · Fillmore, Sat Nov 21</span>`;
   } else if (now > end) {
     el.innerHTML = `<span>Trip's over. Good weekend.</span>`;
   } else {
